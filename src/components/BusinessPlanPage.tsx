@@ -4,6 +4,7 @@ import { faEnvelope } from '@fortawesome/free-solid-svg-icons';
 import { faLinkedin } from '@fortawesome/free-brands-svg-icons';
 import { BusinessPlanSection, BusinessPlanTheme } from '../types/businessPlan';
 import { Building, Building2, TrendingUp, Users, Target, DollarSign, BarChart3, Lightbulb, FileText, Calendar, Award, Zap, Globe, Shield, Rocket, Star, Heart, List, ArrowRight } from 'lucide-react';
+import { StatsCard, MarketSegment, Stakeholder, ProductFeature, MarketingChannel, FinancialMetric, FundingAllocation } from '../utils/pageImportFunctions';
 
 interface BusinessPlanPageProps {
   section: BusinessPlanSection;
@@ -227,32 +228,36 @@ export const BusinessPlanPage = forwardRef<HTMLDivElement, BusinessPlanPageProps
 
         <div className="px-4 space-y-1.5 flex flex-col mt-3" style={{ height: 'calc(100% - 80px)' }}>
           {/* Company Stats Cards */}
-          <div className="grid grid-cols-4 gap-1 mb-1.5 flex-shrink-0">
-            <div className="bg-white rounded-md p-1.5 shadow-sm border-l-2 border-purple-500 hover:shadow-md transition-shadow">
-              <div className="text-center">
-                <div className="text-sm font-black text-purple-600">2024</div>
-                <div className="text-xs text-gray-600 font-medium">Founded</div>
-              </div>
+          {section.content.statsCards && section.content.statsCards.length > 0 && (
+            <div className="grid grid-cols-4 gap-1 mb-1.5 flex-shrink-0">
+              {section.content.statsCards.map((card: StatsCard, index: number) => {
+                const borderColors = {
+                  purple: 'border-purple-500',
+                  blue: 'border-blue-500',
+                  green: 'border-green-500',
+                  orange: 'border-orange-500',
+                  red: 'border-red-500',
+                  yellow: 'border-yellow-500'
+                };
+                const textColors = {
+                  purple: 'text-purple-600',
+                  blue: 'text-blue-600',
+                  green: 'text-green-600',
+                  orange: 'text-orange-600',
+                  red: 'text-red-600',
+                  yellow: 'text-yellow-600'
+                };
+                return (
+                  <div key={index} className={`bg-white rounded-md p-1.5 shadow-sm border-l-2 ${borderColors[card.color as keyof typeof borderColors] || 'border-gray-500'} hover:shadow-md transition-shadow`}>
+                    <div className="text-center">
+                      <div className={`text-sm font-black ${textColors[card.color as keyof typeof textColors] || 'text-gray-600'}`}>{card.value}</div>
+                      <div className="text-xs text-gray-600 font-medium">{card.label}</div>
+                    </div>
+                  </div>
+                );
+              })}
             </div>
-            <div className="bg-white rounded-md p-1.5 shadow-sm border-l-2 border-blue-500 hover:shadow-md transition-shadow">
-              <div className="text-center">
-                <div className="text-sm font-black text-blue-600">10+</div>
-                <div className="text-xs text-gray-600 font-medium">Team</div>
-              </div>
-            </div>
-            <div className="bg-white rounded-md p-1.5 shadow-sm border-l-2 border-green-500 hover:shadow-md transition-shadow">
-              <div className="text-center">
-                <div className="text-sm font-black text-green-600">5</div>
-                <div className="text-xs text-gray-600 font-medium">Markets</div>
-              </div>
-            </div>
-            <div className="bg-white rounded-md p-1.5 shadow-sm border-l-2 border-orange-500 hover:shadow-md transition-shadow">
-              <div className="text-center">
-                <div className="text-sm font-black text-orange-600">∞</div>
-                <div className="text-xs text-gray-600 font-medium">Potential</div>
-              </div>
-            </div>
-          </div>
+          )}
 
           {/* Content with modern card design */}
           <div className="bg-white/95 backdrop-blur-sm rounded-lg p-3 flex-1 shadow-md min-h-0 flex flex-col">
@@ -295,35 +300,36 @@ export const BusinessPlanPage = forwardRef<HTMLDivElement, BusinessPlanPageProps
           </div>
 
           {/* Market Size Visualization */}
-          <div className="bg-white/10 backdrop-blur-md rounded-lg p-2 mb-2 border border-white/20 flex-shrink-0">
-            <div className="text-center mb-2">
-              <h3 className="text-sm font-bold text-white mb-1">Total Addressable Market</h3>
-              <div className="text-xl font-black text-white">$2.5B</div>
-              <p className="text-white/70 text-xs">Growing at 25% annually</p>
+          {(section.content.totalMarket || section.content.marketSegments) && (
+            <div className="bg-white/10 backdrop-blur-md rounded-lg p-2 mb-2 border border-white/20 flex-shrink-0">
+              {section.content.totalMarket && (
+                <div className="text-center mb-2">
+                  <h3 className="text-sm font-bold text-white mb-1">Total Addressable Market</h3>
+                  <div className="text-xl font-black text-white">{section.content.totalMarket}</div>
+                  {section.content.marketGrowth && (
+                    <p className="text-white/70 text-xs">Growing at {section.content.marketGrowth}</p>
+                  )}
+                </div>
+              )}
+              
+              {/* Market segments with progress bars */}
+              {section.content.marketSegments && section.content.marketSegments.length > 0 && (
+                <div className="grid grid-cols-2 gap-1.5">
+                  {section.content.marketSegments.map((segment: MarketSegment, index: number) => (
+                    <div key={index} className="bg-white/20 rounded-md p-1.5">
+                      <div className="flex justify-between items-center mb-1">
+                        <span className="text-white font-semibold text-xs">{segment.name}</span>
+                        <span className="text-white/80 text-xs">{segment.value}</span>
+                      </div>
+                      <div className="w-full bg-white/20 rounded-full h-1">
+                        <div className={`bg-gradient-to-r ${segment.color} h-1 rounded-full`} style={{width: segment.percentage}}></div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
-            
-            {/* Market segments with progress bars */}
-            <div className="grid grid-cols-2 gap-1.5">
-              <div className="bg-white/20 rounded-md p-1.5">
-                <div className="flex justify-between items-center mb-1">
-                  <span className="text-white font-semibold text-xs">Primary Market</span>
-                  <span className="text-white/80 text-xs">$800M</span>
-                </div>
-                <div className="w-full bg-white/20 rounded-full h-1">
-                  <div className="bg-gradient-to-r from-green-400 to-blue-500 h-1 rounded-full" style={{width: '65%'}}></div>
-                </div>
-              </div>
-              <div className="bg-white/20 rounded-md p-1.5">
-                <div className="flex justify-between items-center mb-1">
-                  <span className="text-white font-semibold text-xs">Secondary Market</span>
-                  <span className="text-white/80 text-xs">$400M</span>
-                </div>
-                <div className="w-full bg-white/20 rounded-full h-1">
-                  <div className="bg-gradient-to-r from-purple-400 to-pink-500 h-1 rounded-full" style={{width: '35%'}}></div>
-                </div>
-              </div>
-            </div>
-          </div>
+          )}
 
           {/* Content */}
           <div className="bg-white/95 backdrop-blur-sm rounded-lg p-3 flex-1 shadow-md min-h-0 flex flex-col">
@@ -369,53 +375,55 @@ export const BusinessPlanPage = forwardRef<HTMLDivElement, BusinessPlanPageProps
           <div className="bg-white/80 backdrop-blur-md rounded-xl p-4 flex-1 shadow-xl border border-white/50 min-h-0">
             <h3 className="text-base font-bold text-center text-gray-800 mb-3">Meet Our Stakeholders</h3>
             
-            <div className="grid grid-cols-2 gap-2 mb-3 flex-1">
-              {[1, 2, 3, 4].map((index) => (
-                <div key={index} className="bg-gradient-to-br from-white to-gray-50 rounded-lg p-3 shadow-md hover:shadow-lg transition-all hover:scale-102 border border-gray-100">
-                  <div className="flex items-center space-x-2 mb-2">
-                    <div className="relative">
-                      <div className="w-8 h-8 bg-gradient-to-br from-orange-400 to-red-500 rounded-full flex items-center justify-center shadow-md">
-                        <span className="text-white font-black text-sm">{index}</span>
+            {section.content.stakeholders && section.content.stakeholders.length > 0 && (
+              <div className="grid grid-cols-2 gap-2 mb-3 flex-1">
+                {section.content.stakeholders.map((stakeholder: Stakeholder) => (
+                  <div key={stakeholder.id} className="bg-gradient-to-br from-white to-gray-50 rounded-lg p-3 shadow-md hover:shadow-lg transition-all hover:scale-102 border border-gray-100">
+                    <div className="flex items-center space-x-2 mb-2">
+                      <div className="relative">
+                        <div className="w-8 h-8 bg-gradient-to-br from-orange-400 to-red-500 rounded-full flex items-center justify-center shadow-md">
+                          <span className="text-white font-black text-sm">{stakeholder.id}</span>
+                        </div>
+                        <div className="absolute -top-0.5 -right-0.5 w-3 h-3 bg-green-500 rounded-full border border-white"></div>
                       </div>
-                      <div className="absolute -top-0.5 -right-0.5 w-3 h-3 bg-green-500 rounded-full border border-white"></div>
+                      <div>
+                        <div className="font-black text-gray-800 text-sm">{stakeholder.name}</div>
+                        <div className="text-orange-600 font-semibold text-xs">{stakeholder.role}</div>
+                      </div>
                     </div>
-                    <div>
-                      <div className="font-black text-gray-800 text-sm">Stakeholder {index}</div>
-                      <div className="text-orange-600 font-semibold text-xs">Executive Role</div>
-                    </div>
-                  </div>
-                  
-                  <div className="space-y-1 text-xs">
-                    <div className="flex items-center justify-between">
-                      <span className="text-gray-600">Stake:</span>
-                      <span className="font-bold text-orange-600">25%</span>
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <span className="text-gray-600">Experience:</span>
-                      <span className="font-bold text-gray-800">10+ years</span>
-                    </div>
-                    <div className="pt-0.5 border-t border-gray-200">
                     
-                    <div className="text-xs text-gray-500 truncate flex items-center gap-1">
-                      <FontAwesomeIcon icon={faEnvelope} className="w-3.5 h-3.5" />
-                      <span>stakeholder{index}@company.com</span>
-                    </div>
-                    <div className="text-xs text-gray-500 truncate flex items-center gap-1">
-                      <FontAwesomeIcon icon={faLinkedin} className="w-3.5 h-3.5" />
-                      <span>linkedin.com/in/profile{index}</span>
+                    <div className="space-y-1 text-xs">
+                      <div className="flex items-center justify-between">
+                        <span className="text-gray-600">Stake:</span>
+                        <span className="font-bold text-orange-600">{stakeholder.stake}</span>
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <span className="text-gray-600">Experience:</span>
+                        <span className="font-bold text-gray-800">{stakeholder.experience}</span>
+                      </div>
+                      <div className="pt-0.5 border-t border-gray-200">
+                        <div className="text-xs text-gray-500 truncate flex items-center gap-1">
+                          <FontAwesomeIcon icon={faEnvelope} className="w-3.5 h-3.5" />
+                          <span>{stakeholder.email}</span>
+                        </div>
+                        <div className="text-xs text-gray-500 truncate flex items-center gap-1">
+                          <FontAwesomeIcon icon={faLinkedin} className="w-3.5 h-3.5" />
+                          <span>{stakeholder.linkedin}</span>
+                        </div>
+                      </div>
                     </div>
                   </div>
-                  </div>
-                
-                </div>
-              ))}
-            </div>
+                ))}
+              </div>
+            )}
             
-            {/* <div className="text-center">
-              <p className="text-xs text-gray-600 bg-orange-50 rounded-lg p-3 border border-orange-200">
-                💡 <strong>Note:</strong> Replace with actual stakeholder information including profile pictures, names, designations, stake percentages, emails, and LinkedIn profiles.
-              </p>
-            </div> */}
+            {(!section.content.stakeholders || section.content.stakeholders.length === 0) && (
+              <div className="text-center">
+                <p className="text-xs text-gray-600 bg-orange-50 rounded-lg p-3 border border-orange-200">
+                  💡 <strong>Note:</strong> No stakeholder data available. Please provide stakeholder information in the backend data.
+                </p>
+              </div>
+            )}
           </div>
         </div>
       </div>
@@ -452,37 +460,29 @@ export const BusinessPlanPage = forwardRef<HTMLDivElement, BusinessPlanPageProps
           </div>
 
           {/* Product showcase */}
-          <div className="grid grid-cols-2 gap-2 mb-3 flex-shrink-0">
-            <div className="bg-white/10 backdrop-blur-md rounded-xl p-3 border border-white/20 hover:bg-white/15 transition-all">
-              <div className="flex items-center space-x-2 mb-2">
-                <div className="p-1.5 bg-gradient-to-br from-yellow-400 to-orange-500 rounded-lg">
-                  <Zap size={20} className="text-white" />
-                </div>
-                <div>
-                  <h3 className="text-sm font-bold text-white">Innovation</h3>
-                  <p className="text-white/70 text-xs">Cutting-edge solutions</p>
-                </div>
-              </div>
-              <div className="w-full bg-white/20 rounded-full h-1.5">
-                <div className="bg-gradient-to-r from-yellow-400 to-orange-500 h-1.5 rounded-full" style={{width: '90%'}}></div>
-              </div>
+          {section.content.productFeatures && section.content.productFeatures.length > 0 && (
+            <div className="grid grid-cols-2 gap-2 mb-3 flex-shrink-0">
+              {section.content.productFeatures.map((feature: ProductFeature, index: number) => {
+                const IconComponent = feature.icon === 'Zap' ? Zap : Shield;
+                return (
+                  <div key={index} className="bg-white/10 backdrop-blur-md rounded-xl p-3 border border-white/20 hover:bg-white/15 transition-all">
+                    <div className="flex items-center space-x-2 mb-2">
+                      <div className={`p-1.5 bg-gradient-to-br ${feature.color} rounded-lg`}>
+                        <IconComponent size={20} className="text-white" />
+                      </div>
+                      <div>
+                        <h3 className="text-sm font-bold text-white">{feature.name}</h3>
+                        <p className="text-white/70 text-xs">{feature.description}</p>
+                      </div>
+                    </div>
+                    <div className="w-full bg-white/20 rounded-full h-1.5">
+                      <div className={`bg-gradient-to-r ${feature.color} h-1.5 rounded-full`} style={{width: feature.percentage}}></div>
+                    </div>
+                  </div>
+                );
+              })}
             </div>
-
-            <div className="bg-white/10 backdrop-blur-md rounded-xl p-3 border border-white/20 hover:bg-white/15 transition-all">
-              <div className="flex items-center space-x-2 mb-2">
-                <div className="p-1.5 bg-gradient-to-br from-green-400 to-blue-500 rounded-lg">
-                  <Shield size={20} className="text-white" />
-                </div>
-                <div>
-                  <h3 className="text-sm font-bold text-white">Quality</h3>
-                  <p className="text-white/70 text-xs">Premium standards</p>
-                </div>
-              </div>
-              <div className="w-full bg-white/20 rounded-full h-1.5">
-                <div className="bg-gradient-to-r from-green-400 to-blue-500 h-1.5 rounded-full" style={{width: '95%'}}></div>
-              </div>
-            </div>
-          </div>
+          )}
 
           {/* Content */}
           <div className="bg-white/95 backdrop-blur-sm rounded-xl p-4 flex-1 shadow-lg min-h-0 flex flex-col">
@@ -532,23 +532,20 @@ export const BusinessPlanPage = forwardRef<HTMLDivElement, BusinessPlanPageProps
           </div>
 
           {/* Marketing channels */}
-          <div className="grid grid-cols-4 gap-1.5 mb-3 flex-shrink-0">
-            {[
-              { name: 'Digital', percentage: '40%', color: 'from-cyan-400 to-blue-500', icon: '💻' },
-              { name: 'Social', percentage: '25%', color: 'from-pink-400 to-red-500', icon: '📱' },
-              { name: 'Direct', percentage: '20%', color: 'from-green-400 to-teal-500', icon: '🎯' },
-              { name: 'Partners', percentage: '15%', color: 'from-purple-400 to-indigo-500', icon: '🤝' }
-            ].map((channel) => (
-              <div key={channel.name} className="bg-white/20 backdrop-blur-md rounded-lg p-2 text-center border border-white/30 hover:bg-white/25 transition-all">
-                <div className="text-lg mb-1">{channel.icon}</div>
-                <div className="text-sm font-black text-white mb-1">{channel.percentage}</div>
-                <div className="text-white/80 font-medium text-xs">{channel.name}</div>
-                <div className="mt-1 w-full bg-white/20 rounded-full h-1.5">
-                  <div className={`bg-gradient-to-r ${channel.color} h-1.5 rounded-full`} style={{width: channel.percentage}}></div>
+          {section.content.marketingChannels && section.content.marketingChannels.length > 0 && (
+            <div className="grid grid-cols-4 gap-1.5 mb-3 flex-shrink-0">
+              {section.content.marketingChannels.map((channel: MarketingChannel) => (
+                <div key={channel.name} className="bg-white/20 backdrop-blur-md rounded-lg p-2 text-center border border-white/30 hover:bg-white/25 transition-all">
+                  <div className="text-lg mb-1">{channel.icon}</div>
+                  <div className="text-sm font-black text-white mb-1">{channel.percentage}</div>
+                  <div className="text-white/80 font-medium text-xs">{channel.name}</div>
+                  <div className="mt-1 w-full bg-white/20 rounded-full h-1.5">
+                    <div className={`bg-gradient-to-r ${channel.color} h-1.5 rounded-full`} style={{width: channel.percentage}}></div>
+                  </div>
                 </div>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          )}
 
           {/* Content */}
           <div className="bg-white/95 backdrop-blur-sm rounded-xl p-4 flex-1 shadow-lg min-h-0 flex flex-col">
@@ -595,40 +592,36 @@ export const BusinessPlanPage = forwardRef<HTMLDivElement, BusinessPlanPageProps
           </div>
 
           {/* Key metrics */}
-          <div className="grid grid-cols-3 gap-2 mb-3 flex-shrink-0">
-            <div className="bg-white/20 backdrop-blur-md rounded-xl p-3 text-center border border-white/30">
-              <div className="text-xl font-black text-white mb-1">25%</div>
-              <div className="text-white/80 font-medium text-xs">Gross Margin</div>
-              <div className="mt-1 w-full bg-white/20 rounded-full h-1.5">
-                <div className="bg-gradient-to-r from-green-400 to-emerald-500 h-1.5 rounded-full" style={{width: '75%'}}></div>
-              </div>
+          {section.content.financialMetrics && section.content.financialMetrics.length > 0 && (
+            <div className="grid grid-cols-3 gap-2 mb-3 flex-shrink-0">
+              {section.content.financialMetrics.map((metric: FinancialMetric, index: number) => (
+                <div key={index} className="bg-white/20 backdrop-blur-md rounded-xl p-3 text-center border border-white/30">
+                  <div className="text-xl font-black text-white mb-1">{metric.value}</div>
+                  <div className="text-white/80 font-medium text-xs">{metric.label}</div>
+                  {metric.percentage && (
+                    <div className="mt-1 w-full bg-white/20 rounded-full h-1.5">
+                      <div className={`bg-gradient-to-r ${metric.color} h-1.5 rounded-full`} style={{width: metric.percentage}}></div>
+                    </div>
+                  )}
+                </div>
+              ))}
             </div>
-            
-            <div className="bg-white/20 backdrop-blur-md rounded-xl p-3 text-center border border-white/30">
-              <div className="text-xl font-black text-white mb-1">18</div>
-              <div className="text-white/80 font-medium text-xs">Months to Break-even</div>
-              <div className="mt-1 w-full bg-white/20 rounded-full h-1.5">
-                <div className="bg-gradient-to-r from-blue-400 to-purple-500 h-1.5 rounded-full" style={{width: '60%'}}></div>
-              </div>
-            </div>
-            
-            <div className="bg-white/20 backdrop-blur-md rounded-xl p-3 text-center border border-white/30">
-              <div className="text-xl font-black text-white mb-1">3.2x</div>
-              <div className="text-white/80 font-medium text-xs">ROI (5 years)</div>
-              <div className="mt-1 w-full bg-white/20 rounded-full h-1.5">
-                <div className="bg-gradient-to-r from-yellow-400 to-orange-500 h-1.5 rounded-full" style={{width: '85%'}}></div>
-              </div>
-            </div>
-          </div>
+          )}
 
           {/* Revenue projection */}
-          <div className="bg-white/10 backdrop-blur-md rounded-xl p-3 mb-3 border border-white/20 flex-shrink-0">
-            <div className="text-center mb-2">
-              <h3 className="text-sm font-bold text-white mb-1">Projected Revenue Growth</h3>
-              <div className="text-xl font-black text-white">$2.5M</div>
-              <p className="text-white/70 text-xs">by Year 3</p>
+          {(section.content.projectedRevenue || section.content.revenueTimeline) && (
+            <div className="bg-white/10 backdrop-blur-md rounded-xl p-3 mb-3 border border-white/20 flex-shrink-0">
+              <div className="text-center mb-2">
+                <h3 className="text-sm font-bold text-white mb-1">Projected Revenue Growth</h3>
+                {section.content.projectedRevenue && (
+                  <div className="text-xl font-black text-white">{section.content.projectedRevenue}</div>
+                )}
+                {section.content.revenueTimeline && (
+                  <p className="text-white/70 text-xs">{section.content.revenueTimeline}</p>
+                )}
+              </div>
             </div>
-          </div>
+          )}
 
           {/* Content */}
           <div className="bg-white/95 backdrop-blur-sm rounded-xl p-4 flex-1 shadow-lg min-h-0 flex flex-col">
@@ -675,39 +668,34 @@ export const BusinessPlanPage = forwardRef<HTMLDivElement, BusinessPlanPageProps
           </div>
 
           {/* Funding breakdown */}
-          <div className="bg-white/20 backdrop-blur-md rounded-xl p-3 mb-3 border border-white/30 flex-shrink-0">
-            <h3 className="text-sm font-bold text-white text-center mb-3">Funding Allocation</h3>
-            
-            <div className="grid grid-cols-2 gap-2">
-              {[
-                { category: 'Product-Development', amount: '$200K', percentage: '40%', color: 'from-blue-400 to-blue-600', icon: '🚀' },
-               
-                { category: 'Marketing & Sales', amount: '$150K', percentage: '30%', color: 'from-purple-400 to-purple-600', icon: '📈' },
-                { category: 'Operations', amount: '$100K', percentage: '20%', color: 'from-green-400 to-green-600', icon: '⚙️' },
-             
-                { category: 'Working-Capital', amount: '$50K', percentage: '10%', color: 'from-yellow-400 to-yellow-600', icon: '💰' }
-              ].map((item) => (
-                <div key={item.category} className="bg-white/90 rounded-lg p-3 shadow-md hover:shadow-lg transition-all">
-                  <div className="flex items-center justify-between mb-2">
-                    <div className="flex items-center space-x-1.5">
-                      <span className="text-sm">{item.icon}</span>
-                      <span className="font-bold text-gray-800 text-xs break-words">{item.category}</span>
+          {section.content.fundingAllocation && section.content.fundingAllocation.length > 0 && (
+            <div className="bg-white/20 backdrop-blur-md rounded-xl p-3 mb-3 border border-white/30 flex-shrink-0">
+              <h3 className="text-sm font-bold text-white text-center mb-3">Funding Allocation</h3>
+              
+              <div className="grid grid-cols-2 gap-2">
+                {section.content.fundingAllocation.map((item: FundingAllocation) => (
+                  <div key={item.category} className="bg-white/90 rounded-lg p-3 shadow-md hover:shadow-lg transition-all">
+                    <div className="flex items-center justify-between mb-2">
+                      <div className="flex items-center space-x-1.5">
+                        <span className="text-sm">{item.icon}</span>
+                        <span className="font-bold text-gray-800 text-xs break-words">{item.category}</span>
+                      </div>
+                      <span className="text-sm font-black text-green-600">{item.amount}</span>
                     </div>
-                    <span className="text-sm font-black text-green-600">{item.amount}</span>
+                    <div className="w-full bg-gray-200 rounded-full h-1.5">
+                      <div 
+                        className={`bg-gradient-to-r ${item.color} h-1.5 rounded-full transition-all duration-1000`}
+                        style={{ width: item.percentage }}
+                      ></div>
+                    </div>
+                    <div className="text-right mt-0.5">
+                      <span className="text-xs font-semibold text-gray-600">{item.percentage}</span>
+                    </div>
                   </div>
-                  <div className="w-full bg-gray-200 rounded-full h-1.5">
-                    <div 
-                      className={`bg-gradient-to-r ${item.color} h-1.5 rounded-full transition-all duration-1000`}
-                      style={{ width: item.percentage }}
-                    ></div>
-                  </div>
-                  <div className="text-right mt-0.5">
-                    <span className="text-xs font-semibold text-gray-600">{item.percentage}</span>
-                  </div>
-                </div>
-              ))}
+                ))}
+              </div>
             </div>
-          </div>
+          )}
 
           {/* Content */}
       
@@ -884,20 +872,26 @@ export const BusinessPlanPage = forwardRef<HTMLDivElement, BusinessPlanPageProps
           </div>
 
           {/* Funding stats */}
-          <div className="grid grid-cols-3 gap-2 mb-3 flex-shrink-0">
-            <div className="bg-white/40 backdrop-blur-md rounded-lg p-2 text-center border border-white/50">
-              <div className="text-lg font-black text-orange-600">15+</div>
-              <div className="text-xs text-gray-700 font-medium">Gov Grants</div>
+          {section.content.fundingStats && section.content.fundingStats.length > 0 && (
+            <div className="grid grid-cols-3 gap-2 mb-3 flex-shrink-0">
+              {section.content.fundingStats.map((stat: StatsCard, index: number) => {
+                const textColors = {
+                  orange: 'text-orange-600',
+                  green: 'text-green-600',
+                  blue: 'text-blue-600',
+                  purple: 'text-purple-600',
+                  red: 'text-red-600',
+                  yellow: 'text-yellow-600'
+                };
+                return (
+                  <div key={index} className="bg-white/40 backdrop-blur-md rounded-lg p-2 text-center border border-white/50">
+                    <div className={`text-lg font-black ${textColors[stat.color as keyof typeof textColors] || 'text-gray-600'}`}>{stat.value}</div>
+                    <div className="text-xs text-gray-700 font-medium">{stat.label}</div>
+                  </div>
+                );
+              })}
             </div>
-            <div className="bg-white/40 backdrop-blur-md rounded-lg p-2 text-center border border-white/50">
-              <div className="text-lg font-black text-green-600">8+</div>
-              <div className="text-xs text-gray-700 font-medium">NGO Grants</div>
-            </div>
-            <div className="bg-white/40 backdrop-blur-md rounded-lg p-2 text-center border border-white/50">
-              <div className="text-lg font-black text-blue-600">₹50L</div>
-              <div className="text-xs text-gray-700 font-medium">Max Grant</div>
-            </div>
-          </div>
+          )}
 
           {/* Content */}
           <div className="bg-white/90 backdrop-blur-sm rounded-xl p-4 flex-1 shadow-lg min-h-0 flex flex-col border border-white/50">

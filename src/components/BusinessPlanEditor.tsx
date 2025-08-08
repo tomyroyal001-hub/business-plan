@@ -18,49 +18,20 @@ export const BusinessPlanEditor: React.FC<BusinessPlanEditorProps> = ({ template
   const [jsonInput, setJsonInput] = useState('');
   const [showJsonInput, setShowJsonInput] = useState(false);
   const [isGeneratingPDF, setIsGeneratingPDF] = useState(false);
-  const [processedData, setProcessedData] = useState<any>(null);
-  const [isLoadingData, setIsLoadingData] = useState(true);
+  const [processedData, setProcessedData] = useState(() => {
+    // Initialize with sample data to demonstrate data flow
+    // In production, this would be: importAllPagesData(backendData)
+    return importAllPagesData({
+      // This empty object demonstrates how backend data would be passed
+      // The import functions will use their sample data as defaults
+    });
+  });
   const pageRefs = useRef<{ [key: number]: HTMLDivElement | null }>({});
-
-  // Load initial data from APIs
-  React.useEffect(() => {
-    const loadInitialData = async () => {
-      setIsLoadingData(true);
-      try {
-        const data = await importAllPagesData({});
-        setProcessedData(data);
-      } catch (error) {
-        console.error('Error loading initial data:', error);
-        // Set empty data structure if API calls fail
-        setProcessedData({
-          coverPage: { companyName: '', subtitle: '', year: '', preparedBy: '', statsCards: [] },
-          tableOfContents: { showPageNumbers: true, includeSubsections: false },
-          companyDescription: { legalStructure: '', companyHistory: '', industry: '', visionStatement: '', uniqueValueProposition: '', statsCards: [] },
-          marketAnalysis: { industryAnalysis: '', targetMarket: '', marketSize: '', competitorAnalysis: '', competitiveAdvantage: '', totalMarket: '', marketGrowth: '', marketSegments: [] },
-          organizationManagement: { stakeholderInfo: '', leadershipTeam: '', organizationalStructure: '', advisoryBoard: '', keyPersonnel: '', stakeholders: [] },
-          productService: { productDescription: '', benefitsToCustomers: '', developmentStage: '', intellectualProperty: '', futureProducts: '', productFeatures: [] },
-          marketingSales: { marketingStrategy: '', salesStrategy: '', pricingStrategy: '', distributionChannels: '', promotionStrategy: '', marketingChannels: [] },
-          financialProjections: { startupCosts: '', salesForecast: '', expenseProjections: '', breakEvenAnalysis: '', fundingNeeds: '', financialMetrics: [], projectedRevenue: '', revenueTimeline: '' },
-          fundingRequest: { currentFundingNeeds: '', futureFundingNeeds: '', useOfFunds: '', strategicFinancialSituation: '', exitStrategy: '', fundingAllocation: [] },
-          appendix: { resumes: '', permits: '', legalDocuments: '', marketResearch: '', additionalInfo: '' },
-          governmentPolicy: { industryRegulations: '', complianceRequirements: '', licensingRequirements: '', policyChanges: '', taxIncentives: '' },
-          ngoLandscape: { relevantNGOs: '', potentialPartnerships: '', resourcesOffered: '', contactInformation: '', successStories: '' },
-          grants: { governmentGrants: '', ngoGrants: '', eligibilityCriteria: '', applicationProcess: '', applicationDeadlines: '', grantAcquisitionStrategy: '', fundingStats: [] }
-        });
-      } finally {
-        setIsLoadingData(false);
-      }
-    };
-
-    loadInitialData();
-  }, []);
 
   const totalPages = 13;
   
   // Get current section with processed data
   const getCurrentSectionWithProcessedData = () => {
-    if (!processedData) return null;
-    
     const baseSection = sections.find(section => section.pageNumber === currentPage);
     if (!baseSection) return null;
 
@@ -123,12 +94,11 @@ export const BusinessPlanEditor: React.FC<BusinessPlanEditorProps> = ({ template
   };
 
   const handleJsonImport = () => {
-    const processJsonImport = async () => {
-      try {
+    try {
       const jsonData = JSON.parse(jsonInput);
       
       // Process the JSON data through import functions
-      const newProcessedData = await importAllPagesData(jsonData);
+      const newProcessedData = importAllPagesData(jsonData);
       setProcessedData(newProcessedData);
       
       // Update sections with new processed data
@@ -184,12 +154,9 @@ export const BusinessPlanEditor: React.FC<BusinessPlanEditorProps> = ({ template
       
       setJsonInput('');
       setShowJsonInput(false);
-      } catch (error) {
+    } catch (error) {
       alert('Invalid JSON format. Please check your input and try again.');
-      }
-    };
-    
-    processJsonImport();
+    }
   };
 
   const downloadPDF = async () => {
@@ -285,18 +252,6 @@ export const BusinessPlanEditor: React.FC<BusinessPlanEditorProps> = ({ template
   };
 
   const currentSection = getCurrentSectionWithProcessedData();
-
-  // Show loading state while data is being fetched
-  if (isLoadingData) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50 flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading business plan data...</p>
-        </div>
-      </div>
-    );
-  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50">

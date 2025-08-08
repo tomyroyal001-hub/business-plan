@@ -132,11 +132,11 @@ export const businessPlanTemplate: BusinessPlanTemplate = {
   ]
 };
 
-export const createBusinessPlanFromJSON = async (jsonData: BusinessPlanData): Promise<BusinessPlanTemplate> => {
+export const createBusinessPlanFromJSON = (jsonData: BusinessPlanData): BusinessPlanTemplate => {
   const template = { ...businessPlanTemplate };
   
   // Process all page data through import functions only
-  const processedData = await importAllPagesData(jsonData);
+  const processedData = importAllPagesData(jsonData);
   
   // Update sections with processed data (empty content, will be filled by import functions)
   template.sections = template.sections.map(section => {

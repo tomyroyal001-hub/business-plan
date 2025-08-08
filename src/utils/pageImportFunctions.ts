@@ -1,3 +1,10 @@
+// Environment variable for API base URL
+declare global {
+  interface ImportMetaEnv {
+    VITE_API_BASE_URL?: string;
+  }
+}
+
 // Page import functions with constant keys and default placeholders
 
 export interface PageImportData {

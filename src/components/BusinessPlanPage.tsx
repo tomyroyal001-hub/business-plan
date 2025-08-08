@@ -4,7 +4,7 @@ import { faEnvelope } from '@fortawesome/free-solid-svg-icons';
 import { faLinkedin } from '@fortawesome/free-brands-svg-icons';
 import { BusinessPlanSection, BusinessPlanTheme } from '../types/businessPlan';
 import { Building, Building2, TrendingUp, Users, Target, DollarSign, BarChart3, Lightbulb, FileText, Calendar, Award, Zap, Globe, Shield, Rocket, Star, Heart, List, ArrowRight } from 'lucide-react';
-import { StatsCard, MarketSegment, Stakeholder, ProductFeature, MarketingChannel, FinancialMetric, FundingAllocation } from '../utils/pageImportFunctions';
+import { StatsCard, MarketSegment, Stakeholder, ProductFeature, MarketingChannel, FinancialMetric, FundingAllocation, getPageKeys } from '../utils/pageImportFunctions';
 
 interface BusinessPlanPageProps {
   section: BusinessPlanSection;
@@ -909,7 +909,30 @@ export const BusinessPlanPage = forwardRef<HTMLDivElement, BusinessPlanPageProps
     const renderContent = () => {
       if (section.contentType === 'structured' && typeof section.content === 'object') {
         const contentObj = section.content as Record<string, string>;
-        const entries = Object.entries(contentObj);
+        
+        // Get the page keys to identify structured data fields
+        const pageKeys = getPageKeys();
+        const currentPageKeys = Object.values(pageKeys).flat();
+        
+        // Define structured data keys that should not be rendered as text
+        const structuredDataKeys = [
+          'statsCards', 'marketSegments', 'stakeholders', 'productFeatures', 
+          'marketingChannels', 'financialMetrics', 'fundingAllocation', 'fundingStats'
+        ];
+        
+        // Filter out structured data and only keep string/primitive values
+        const entries = Object.entries(contentObj).filter(([key, value]) => {
+          // Skip if it's a known structured data key
+          if (structuredDataKeys.includes(key)) {
+            return false;
+          }
+          // Skip if the value looks like JSON (starts with [ or {)
+          if (typeof value === 'string' && (value.trim().startsWith('[') || value.trim().startsWith('{'))) {
+            return false;
+          }
+          // Only include string values
+          return typeof value === 'string' && value.trim().length > 0;
+        });
         
         return (
           <div className="space-y-3">

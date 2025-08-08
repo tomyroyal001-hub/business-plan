@@ -21,13 +21,17 @@ export const BusinessPlanStart: React.FC<BusinessPlanStartProps> = ({ onStartEdi
   };
 
   const handleJsonImport = () => {
-    try {
+    const processJsonImport = async () => {
+      try {
       const jsonData = JSON.parse(jsonInput);
-      const customTemplate = createBusinessPlanFromJSON(jsonData);
+      const customTemplate = await createBusinessPlanFromJSON(jsonData);
       onStartEditing(customTemplate);
-    } catch (error) {
+      } catch (error) {
       alert('Invalid JSON format. Please check your input and try again.');
-    }
+      }
+    };
+    
+    processJsonImport();
   };
 
   return (
